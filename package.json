@@ -1,0 +1,35 @@
+{
+  "name": "copilot_loop",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "bin": {
+    "copilot_loop": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "examples"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.json && node scripts/postbuild.mjs",
+    "start": "node dist/index.js",
+    "test": "npm run build && node --test",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.25.2",
+    "@cfworker/json-schema": "^4.1.1",
+    "zod": "^3.25.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "prettier": "3.7.1",
+    "typescript": "5.8.3"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "packageManager": "pnpm@10.24.0+sha512.01ff8ae71b4419903b65c60fb2dc9d34cf8bb6e06d03bde112ef38f7a34d6904c424ba66bea5cdcf12890230bf39f9580473140ed9c946fef328b6e5238a345a"
+}
