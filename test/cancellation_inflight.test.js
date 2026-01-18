@@ -26,7 +26,9 @@ test('tool cancellation releases inFlight; next call succeeds', async () => {
 
     if (elicitationCallCount === 1) {
       await new Promise((resolve) => {
-        const t = setTimeout(resolve, 30_000);
+        // This just simulates a "hung" elicitation until the client aborts.
+        // Keep it short so the test suite doesn't take ~30s.
+        const t = setTimeout(resolve, 200);
         extra.signal.addEventListener(
           'abort',
           () => {
@@ -72,7 +74,7 @@ test('tool cancellation releases inFlight; next call succeeds', async () => {
         progressCount += 1;
       },
       resetTimeoutOnProgress: true,
-      timeout: 60_000,
+      timeout: 5_000,
     },
   );
 
