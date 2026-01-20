@@ -49,11 +49,29 @@ ASK_USER_ELICITATION_TIMEOUT_MS=86400000
 
 ## Global Copilot Instructions (recommended)
 
-Add the following to your global `copilot-instructions.md`:
+Add the following to your project's `.github/copilot-instructions.md` (or global config):
 
-- Use the `copilot_loop` `ask_user` tool whenever you intend to end your turn and hand control back to the user. Do not finish or pause without calling it.
-- Use the `copilot_loop` `ask_user` tool whenever you have a question that needs the user's answer.
-- Only one elicitation can be active per server; if you get timeouts or "already in progress" errors, retry or inform the user.
+```markdown
+## MANDATORY: Use the `copilot_loop` `ask_user` tool
+
+**You MUST call the `copilot_loop` `ask_user` tool before every turn ends. No exceptions.**
+
+### Rules (MUST follow):
+
+1. **ALWAYS end your turn by calling `ask_user`** — Never finish, pause, or yield control without calling this tool first.
+2. **Call the tool IMMEDIATELY after completing any work** — Do not announce you will use it "next turn" or "later". Call it NOW, in THIS response.
+3. **Questions require the tool** — If you ask the user a question, you MUST call `ask_user` in the same response. Do not ask questions in chat text alone.
+4. **Confirmations require the tool** — After completing a task, call `ask_user` to confirm with the user (e.g., "Does this look good?" or "What's next?").
+
+### Anti-patterns (NEVER do these):
+
+❌ Ending your response without calling `ask_user`
+❌ Saying "I'll use the tool in my next response"
+❌ Asking a question in text without also calling `ask_user`
+❌ Announcing you are done without calling `ask_user` to confirm
+```
+
+This explicit guidance helps ensure models (especially those less inclined to use tools) actually call the `ask_user` tool every turn.
 
 ## JetBrains Copilot MCP config (stdio)
 
@@ -67,49 +85,3 @@ Example (conceptual):
 
 See `examples/mcp.json` for a copy/paste starting point.
 
-## Tool: `ask_user`
-
-### Input
-
-- `message` (string, required): shown above the form.
-- `requestedSchema` (object, required): restricted JSON Schema describing form fields:
-  - top-level `{ type: "object", properties: { ... }, required?: [...] }`
-  - flat fields only (no nested objects)
-  - supported field types:
-    - `{ type: "string" }` (+ `minLength`, `maxLength`, `pattern`, `format`, `default`)
-    - `{ type: "number" }` / `{ type: "integer" }` (+ `minimum`, `maximum`, `default`)
-    - `{ type: "boolean" }` (+ `default`)
-    - single-select enum:
-      - `{ type: "string", enum: ["a","b"] }` OR
-      - `{ type: "string", oneOf: [{const:"a",title:"A"}, ...] }`
-    - multi-select enum:
-      - `{ type: "array", items: { type: "string", enum: [...] } }` OR
-      - `{ type: "array", items: { anyOf: [{const:"a",title:"A"}, ...] } }`
-
-### “Select OR freeform” pattern
-
-Represent this as _two_ fields:
-
-- `<key>`: enum including `"Other"`
-- `<key>_details`: optional string
-
-Agent interpretation:
-
-- if `<key> === "Other"` then use `<key>_details` (and re-ask if empty)
-- else use `<key>`
-
-### Output (returned as JSON text)
-
-Envelope:
-
-- `status: "ok" | "error"`
-- `action: "accept" | "decline" | "cancel" | null`
-- `content: object | null` (present only for `accept`)
-- `error?: { code, message }`
-
-Error codes:
-
-- `ELICITATION_UNSUPPORTED`
-- `INVALID_REQUESTED_SCHEMA`
-- `ELICITATION_IN_PROGRESS`
-- `ELICITATION_FAILED`
