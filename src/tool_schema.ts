@@ -2,6 +2,11 @@ import { z } from 'zod';
 
 export const ASK_USER_TOOL_DESCRIPTION = `Ask the human user a question via MCP elicitation (client/elicitation, elicitation/create) using form mode.
 
+CRITICAL UX RULE (must follow):
+- The elicitation "message" is rendered as a single-line title in the input UI. Newlines will not render and long text may be truncated.
+- Therefore: write the full question/instructions in a normal assistant chat message FIRST, then call this tool with a SHORT one-line title that references the chat text above.
+- Keep the tool "message" <= 120 characters and do not include \n.
+
 IMPORTANT usage rule:
 - Use this tool ONLY to ask the human for missing information (i.e., to collect form input).
 - Do NOT use this tool to reply/explain/confirm results to the user; write those in normal assistant chat messages.
@@ -16,7 +21,7 @@ See the requestedSchema argument description for the supported schema subset, be
 export const ASK_USER_MODE_DESCRIPTION =
   'Elicitation mode. Only "form" is supported.';
 export const ASK_USER_MESSAGE_DESCRIPTION =
-  'Text shown to the user above the form.';
+  'Single-line title shown in the client UI. MUST be <= 120 chars and contain no newlines. Put full multi-line instructions in the chat message above and reference them here.';
 export const ASK_USER_REQUESTED_SCHEMA_DESCRIPTION = `Schema for the form fields (restricted JSON Schema subset).
 
 Rules / supported subset:
@@ -131,7 +136,14 @@ Examples (tool inputs) — copy/paste and adjust (keep them in-sync with the rul
 export const askUserArgsSchema = z
   .object({
     mode: z.literal('form').optional().describe(ASK_USER_MODE_DESCRIPTION),
-    message: z.string().min(1).max(8000).describe(ASK_USER_MESSAGE_DESCRIPTION),
+    message: z
+      .string()
+      .min(1)
+      .max(120)
+      .refine((s) => !/[\r\n]/.test(s), {
+        message: 'message must be a single line (no newlines)',
+      })
+      .describe(ASK_USER_MESSAGE_DESCRIPTION),
     requestedSchema: z
       .unknown()
       .describe(ASK_USER_REQUESTED_SCHEMA_DESCRIPTION),
