@@ -4,8 +4,8 @@ export const ASK_USER_TOOL_DESCRIPTION = `Ask the human user a question via MCP 
 
 CRITICAL UX RULE (must follow):
 - The elicitation "message" is rendered as a single-line title in the input UI. Newlines will not render and long text may be truncated.
-- Therefore: write the full question/instructions in a normal assistant chat message FIRST, then call this tool with a SHORT one-line title that references the chat text above.
 - Keep the tool "message" <= 120 characters and do not include \n.
+- For long questions (> 120 chars): put the full question text in the property "title" field of requestedSchema. The UI shows a tooltip on hover when truncated.
 
 IMPORTANT usage rule:
 - Use this tool ONLY to ask the human for missing information (i.e., to collect form input).
@@ -21,7 +21,7 @@ See the requestedSchema argument description for the supported schema subset, be
 export const ASK_USER_MODE_DESCRIPTION =
   'Elicitation mode. Only "form" is supported.';
 export const ASK_USER_MESSAGE_DESCRIPTION =
-  'Single-line title shown in the client UI. MUST be <= 120 chars and contain no newlines. Put full multi-line instructions in the chat message above and reference them here.';
+  'Single-line title shown in the client UI. MUST be <= 120 chars and contain no newlines. For long questions, put the full text in property "title" fields instead.';
 export const ASK_USER_REQUESTED_SCHEMA_DESCRIPTION = `Schema for the form fields (restricted JSON Schema subset).
 
 Rules / supported subset:
@@ -30,6 +30,10 @@ Rules / supported subset:
 - Single-select choices: prefer string.enum (some clients may not support string.oneOf).
 - Multi-select choices: type:"array" with items.{type:"string", enum:[...]} OR items.anyOf:[{const,title}].
 - Use \`required\` to require fields.
+
+Long question text (REQUIRED best practice):
+- Put the FULL question text in the property's "title" field. The UI shows a tooltip on hover when title is truncated, so users can read the complete question.
+- If your question exceeds 120 characters, do NOT put it in the tool "message" — put it in the property "title" instead.
 
 Freeform alongside choices (REQUIRED best practice):
 - If you offer choices, ALWAYS include an additional freeform string field (e.g., <key>_freeform) with NO maxLength.
@@ -130,6 +134,30 @@ Examples (tool inputs) — copy/paste and adjust (keep them in-sync with the rul
       "notes_freeform": { "type": "string", "title": "Notes (freeform)", "description": "Anything else to add. No length limit." }
     },
     "required": ["port"]
+  }
+}
+
+6) Long questions in property title (when question > 120 chars):
+{
+  "message": "Answer the questions below (hover for full text):",
+  "requestedSchema": {
+    "type": "object",
+    "properties": {
+      "answer1": {
+        "type": "string",
+        "title": "This is a very long question that exceeds 120 characters. What is your favorite programming language and why do you prefer it over other languages? Please share your thoughts in detail."
+      },
+      "answer2": {
+        "type": "string",
+        "title": "Here is another lengthy question. What improvements would you like to see in developer tooling over the next five years? Consider AI assistance, debugging, testing, and deployment."
+      },
+      "answer2_freeform": {
+        "type": "string",
+        "title": "Additional thoughts (freeform)",
+        "description": "Optional. Add anything else. No length limit."
+      }
+    },
+    "required": ["answer1"]
   }
 }`;
 
