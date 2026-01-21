@@ -1,14 +1,28 @@
 {
   "name": "copilot_loop",
   "version": "0.1.0",
-  "private": true,
+  "description": "MCP server with ask_user tool for structured user input via elicitation forms",
   "type": "module",
+  "license": "MIT",
+  "author": "",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/itd-cba/copilot_loop.git"
+  },
+  "keywords": [
+    "mcp",
+    "copilot",
+    "elicitation",
+    "agent",
+    "ai"
+  ],
   "bin": {
     "copilot_loop": "./dist/index.js"
   },
   "files": [
     "dist",
     "README.md",
+    "LICENSE",
     "examples"
   ],
   "scripts": {
@@ -16,7 +30,8 @@
     "start": "node dist/index.js",
     "test": "npm run build && node --test",
     "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format:check": "prettier --check .",
+    "prepublishOnly": "npm run test"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.25.2",

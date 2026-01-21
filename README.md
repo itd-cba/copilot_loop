@@ -4,6 +4,14 @@ Minimal MCP server exposing one tool: `ask_user`.
 
 Purpose: let an agent ask the human for structured input via MCP elicitation **form mode** (Copilot UI renders the form).
 
+## Quick Start (npx)
+
+No install needed! Configure your MCP client to run:
+
+```sh
+npx copilot_loop
+```
+
 ## What it does
 
 - Implements MCP tool `ask_user`.
@@ -13,23 +21,35 @@ Purpose: let an agent ask the human for structured input via MCP elicitation **f
 - Handles tool-call cancellation and clears in-flight state (so the next tool call works).
 - Uses a long server->client elicitation request timeout (default 24h) so the user can take >60s to answer without the server timing out.
 
-## Requirements
+## Installation Options
 
-- Node.js >= 18
-- npm
+### Option 1: npx (recommended)
 
-## Install / build
+No install needed. Just configure your MCP client with:
+- Command: `npx`
+- Args: `copilot_loop`
+
+### Option 2: Global install
 
 ```sh
+npm install -g copilot_loop
+```
+
+Then configure:
+- Command: `copilot_loop`
+
+### Option 3: Local development
+
+```sh
+git clone <repo>
+cd copilot_loop
 npm install
 npm run build
 ```
 
-## Run (stdio)
-
-```sh
-node dist/index.js
-```
+Then configure:
+- Command: `node`
+- Args: `/path/to/copilot_loop/dist/index.js`
 
 Debug logs:
 
@@ -75,13 +95,17 @@ This explicit guidance helps ensure models (especially those less inclined to us
 
 ## JetBrains Copilot MCP config (stdio)
 
-Use the IDE’s MCP server configuration UI and point it at the compiled entrypoint.
+Use the IDE's MCP server configuration UI.
 
-Example (conceptual):
+**Recommended (npx):**
+- Command: `npx`
+- Args: `copilot_loop`
 
-- Command: `node`
-- Args: `/absolute/path/to/copilot_loop/dist/index.js`
-- Env (optional): `ASK_USER_DEBUG=1`
+**With debug logs:**
+- Command: `npx`
+- Args: `copilot_loop`
+- Env: `ASK_USER_DEBUG=1`
 
 See `examples/mcp.json` for a copy/paste starting point.
+
 
